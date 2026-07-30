@@ -3,53 +3,101 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Entrar - Blaze Applications</title>
-    <!-- Tailwind CSS CDN -->
+    <title>Acesse - Blaze Applications</title>
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body class="bg-neutral-950 text-white font-sans antialiased flex items-center justify-center min-h-screen relative overflow-hidden">
+<body class="bg-neutral-950 text-white font-sans antialiased flex items-center justify-center min-h-screen relative overflow-hidden px-4">
 
-    <!-- Efeito de luz de fundo rosa -->
     <div class="absolute w-[400px] h-[400px] bg-pink-600/15 rounded-full blur-[100px] pointer-events-none"></div>
 
-    <div class="w-full max-w-md p-8 bg-neutral-900/60 border border-neutral-800 backdrop-blur-xl rounded-2xl shadow-2xl relative z-10 mx-4">
+    <div class="w-full max-w-md p-8 bg-neutral-900/60 border border-neutral-800 backdrop-blur-xl rounded-2xl shadow-2xl relative z-10">
         
-        <!-- Cabeçalho do Card (Logo e Título) -->
+        <!-- Cabeçalho -->
         <div class="text-center mb-8">
-            <a href="index.html" class="inline-flex items-center justify-center w-12 h-12 bg-pink-600 rounded-xl shadow-lg shadow-pink-600/30 mb-4 border border-pink-500/30">
+            <a href="index.html" class="inline-flex items-center justify-center w-12 h-12 bg-pink-600 rounded-xl shadow-lg shadow-pink-600/30 mb-4">
                 <span class="text-white font-bold text-xl">🔥</span>
             </a>
-            <h1 class="text-2xl font-black tracking-tight">Bem-vindo de volta</h1>
-            <p class="text-neutral-400 text-sm mt-1">Acesse sua conta para gerenciar seus bots</p>
+            <h1 id="titulo-form" class="text-2xl font-black tracking-tight">Bem-vindo de volta</h1>
+            <p id="subtitulo-form" class="text-neutral-400 text-sm mt-1">Acesse sua conta para gerenciar seus bots</p>
         </div>
 
-        <!-- Formulário de Login -->
-        <form action="#" method="POST" class="space-y-5">
+        <!-- Formulário Único (Login / Cadastro) -->
+        <form id="auth-form" onsubmit="handleAuth(event)" class="space-y-5">
+            <div id="nome-field" class="hidden">
+                <label class="block text-xs font-semibold text-neutral-300 uppercase tracking-wider mb-2">Nome</label>
+                <input type="text" id="nome" placeholder="Seu Nome" class="w-full bg-neutral-950 border border-neutral-800 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-pink-600">
+            </div>
+
             <div>
                 <label class="block text-xs font-semibold text-neutral-300 uppercase tracking-wider mb-2">E-mail</label>
-                <input type="email" required placeholder="seu@email.com" class="w-full bg-neutral-950 border border-neutral-800 rounded-xl px-4 py-3 text-sm text-white placeholder-neutral-600 focus:outline-none focus:border-pink-600 transition-colors">
+                <input type="email" id="email" required placeholder="seu@email.com" class="w-full bg-neutral-950 border border-neutral-800 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-pink-600">
             </div>
 
             <div>
-                <div class="flex items-center justify-between mb-2">
-                    <label class="text-xs font-semibold text-neutral-300 uppercase tracking-wider">Senha</label>
-                    <a href="#" class="text-xs text-pink-500 hover:underline">Esqueceu a senha?</a>
-                </div>
-                <input type="password" required placeholder="••••••••" class="w-full bg-neutral-950 border border-neutral-800 rounded-xl px-4 py-3 text-sm text-white placeholder-neutral-600 focus:outline-none focus:border-pink-600 transition-colors">
+                <label class="block text-xs font-semibold text-neutral-300 uppercase tracking-wider mb-2">Senha</label>
+                <input type="password" id="senha" required placeholder="••••••••" class="w-full bg-neutral-950 border border-neutral-800 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-pink-600">
             </div>
 
-            <button type="submit" class="w-full bg-pink-600 hover:bg-pink-500 text-white font-bold py-3.5 rounded-xl shadow-lg shadow-pink-600/30 transition-all text-sm mt-2">
+            <button type="submit" id="btn-submit" class="w-full bg-pink-600 hover:bg-pink-500 text-white font-bold py-3.5 rounded-xl shadow-lg shadow-pink-600/30 transition-all text-sm">
                 Entrar na Conta
             </button>
         </form>
 
-        <!-- Rodapé do Card -->
+        <!-- Alternar entre Entrar e Cadastrar -->
         <div class="text-center mt-6 text-sm text-neutral-400">
-            Ainda não tem uma conta? 
-            <a href="#" class="text-pink-500 font-semibold hover:underline">Criar agora</a>
+            <span id="texto-alternar">Ainda não tem uma conta?</span> 
+            <button type="button" onclick="toggleMode()" class="text-pink-500 font-semibold hover:underline ml-1" id="link-alternar">Criar agora</button>
         </div>
 
     </div>
 
+    <script>
+        let isRegister = false;
+
+        function toggleMode() {
+            isRegister = !isRegister;
+            const titulo = document.getElementById('titulo-form');
+            const subtitulo = document.getElementById('subtitulo-form');
+            const nomeField = document.getElementById('nome-field');
+            const btnSubmit = document.getElementById('btn-submit');
+            const textoAlternar = document.getElementById('texto-alternar');
+            const linkAlternar = document.getElementById('link-alternar');
+
+            if (isRegister) {
+                titulo.innerText = "Crie sua conta";
+                subtitulo.innerText = "Comece a hospedar seus bots agora mesmo";
+                nomeField.classList.remove('hidden');
+                btnSubmit.innerText = "Cadastrar";
+                textoAlternar.innerText = "Já tem uma conta?";
+                linkAlternar.innerText = "Entrar";
+            } else {
+                titulo.innerText = "Bem-vindo de volta";
+                subtitulo.innerText = "Acesse sua conta para gerenciar seus bots";
+                nomeField.classList.add('hidden');
+                btnSubmit.innerText = "Entrar na Conta";
+                textoAlternar.innerText = "Ainda não tem uma conta?";
+                linkAlternar.innerText = "Criar agora";
+            }
+        }
+
+        function handleAuth(event) {
+            event.preventDefault();
+            const email = document.getElementById('email').value;
+            const senha = document.getElementById('senha').value;
+
+            if (isRegister) {
+                localStorage.setItem('blaze_user', JSON.stringify({ email, senha }));
+                alert('Conta criada com sucesso! Faça login.');
+                toggleMode();
+            } else {
+                const savedUser = JSON.parse(localStorage.getItem('blaze_user'));
+                if (savedUser && savedUser.email === email && savedUser.senha === senha) {
+                    alert('Login realizado com sucesso!');
+                } else {
+                    alert('E-mail ou senha incorretos (ou crie uma conta primeiro).');
+                }
+            }
+        }
+    </script>
 </body>
 </html>
