@@ -21,7 +21,7 @@
             <p id="subtitulo-form" class="text-neutral-400 text-sm mt-1">Acesse sua conta para gerenciar seus bots</p>
         </div>
 
-        <!-- Formulário Único (Login / Cadastro) -->
+        <!-- Formulário Único -->
         <form id="auth-form" onsubmit="handleAuth(event)" class="space-y-5">
             <div id="nome-field" class="hidden">
                 <label class="block text-xs font-semibold text-neutral-300 uppercase tracking-wider mb-2">Nome</label>
@@ -52,6 +52,13 @@
     </div>
 
     <script>
+        // Se o usuário já estiver logado, joga ele direto pro painel ao abrir o login
+        window.onload = function() {
+            if (localStorage.getItem('blaze_logged_in') === 'true') {
+                window.location.href = 'panel.html';
+            }
+        }
+
         let isRegister = false;
 
         function toggleMode() {
@@ -87,12 +94,13 @@
 
             if (isRegister) {
                 localStorage.setItem('blaze_user', JSON.stringify({ email, senha }));
-                alert('Conta criada com sucesso! Faça login.');
+                alert('Conta criada com sucesso! Agora faça login.');
                 toggleMode();
             } else {
                 const savedUser = JSON.parse(localStorage.getItem('blaze_user'));
                 if (savedUser && savedUser.email === email && savedUser.senha === senha) {
-                    alert('Login realizado com sucesso!');
+                    localStorage.setItem('blaze_logged_in', 'true');
+                    window.location.href = 'panel.html';
                 } else {
                     alert('E-mail ou senha incorretos (ou crie uma conta primeiro).');
                 }
