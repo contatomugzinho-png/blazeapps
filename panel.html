@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Painel - Blaze Applications</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-neutral-950 text-white font-sans antialiased min-h-screen flex flex-col">
+
+    <!-- NAVBAR DO PAINEL -->
+    <header class="bg-neutral-900 border-b border-neutral-800 h-16 flex items-center justify-between px-6">
+        <div class="flex items-center space-x-3">
+            <div class="w-8 h-8 bg-pink-600 rounded-lg flex items-center justify-center font-bold text-sm">🔥</div>
+            <span class="font-extrabold tracking-wide">BLAZE <span class="text-pink-600">PANEL</span></span>
+        </div>
+        <button onclick="logout()" class="text-sm text-neutral-400 hover:text-white transition-colors">Sair</button>
+    </header>
+
+    <!-- CONTEÚDO PRINCIPAL DO PAINEL -->
+    <main class="flex-1 max-w-5xl w-full mx-auto p-6 md:p-10">
+        <div class="flex items-center justify-between mb-8">
+            <div>
+                <h1 class="text-2xl font-black">Seus Bots</h1>
+                <p class="text-neutral-400 text-sm">Gerencie suas aplicações hospedadas na Blaze.</p>
+            </div>
+            <button onclick="alert('Funcionalidade de criar bot em breve!')" class="bg-pink-600 hover:bg-pink-500 text-white text-sm font-bold px-4 py-2.5 rounded-xl shadow-lg shadow-pink-600/30 transition-all">
+                + Novo Bot
+            </button>
+        </div>
+
+        <!-- Estado Vazio (Sem bots) -->
+        <div class="bg-neutral-900/40 border border-neutral-800/80 rounded-2xl p-12 text-center">
+            <div class="w-12 h-12 bg-pink-600/10 text-pink-500 rounded-xl flex items-center justify-center mx-auto mb-4 text-xl border border-pink-500/20">🤖</div>
+            <h2 class="text-lg font-bold mb-2">Nenhum bot hospedado</h2>
+            <p class="text-neutral-400 text-sm max-w-sm mx-auto mb-6">Você ainda não possui nenhuma aplicação rodando nos nossos servidores.</p>
+            <button onclick="alert('Abra para criar bot!')" class="bg-neutral-800 hover:bg-neutral-700 text-neutral-200 text-sm font-semibold px-5 py-2.5 rounded-xl border border-neutral-700 transition-all">
+                Criar meu primeiro bot
+            </button>
+        </div>
+    </main>
+
+    <script>
+        // Sistema básico de proteção de rota simulada
+        window.onload = function() {
+            const loggedUser = localStorage.getItem('blaze_logged_in');
+            if (!loggedUser) {
+                alert('Você precisa fazer login primeiro!');
+                window.location.href = 'login.html';
+            }
+        }
+
+        function logout() {
+            localStorage.removeItem('blaze_logged_in');
+            window.location.href = 'login.html';
+        }
+    </script>
+</body>
+</html>
