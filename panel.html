@@ -20,7 +20,6 @@
     <!-- CONTEÚDO PRINCIPAL DO PAINEL -->
     <main class="flex-1 max-w-6xl w-full mx-auto p-6 md:p-10">
         
-        <!-- Cabeçalho e Botão Novo Bot -->
         <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-8">
             <div>
                 <h1 class="text-2xl font-black">Visão Geral</h1>
@@ -63,17 +62,23 @@
             </div>
         </div>
 
-        <!-- SEÇÃO DE LISTA DE BOTS / ESTADO VAZIO -->
+        <!-- SEÇÃO DE LISTA DE BOTS -->
         <div>
             <h2 class="text-lg font-bold mb-4">Seus Bots</h2>
             
-            <div id="empty-state" class="bg-neutral-900/40 border border-neutral-800/80 rounded-2xl p-12 text-center">
+            <!-- Estado Vazio -->
+            <div id="empty-state" class="bg-neutral-900/40 border border-neutral-800/80 rounded-2xl p-12 text-center hidden">
                 <div class="w-12 h-12 bg-pink-600/10 text-pink-500 rounded-xl flex items-center justify-center mx-auto mb-4 text-xl border border-pink-500/20">🤖</div>
                 <h3 class="text-lg font-bold mb-2">Nenhum bot hospedado</h3>
                 <p class="text-neutral-400 text-sm max-w-sm mx-auto mb-6">Você ainda não possui nenhuma aplicação rodando nos nossos servidores.</p>
                 <button onclick="abrirModalUpload()" class="bg-neutral-800 hover:bg-neutral-700 text-neutral-200 text-sm font-semibold px-5 py-2.5 rounded-xl border border-neutral-700 transition-all">
                     Criar meu primeiro bot
                 </button>
+            </div>
+
+            <!-- Grade com os Bots Cadastrados -->
+            <div id="bots-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                <!-- Os bots entram aqui via JavaScript -->
             </div>
         </div>
 
@@ -84,9 +89,9 @@
         <div class="bg-neutral-900 border border-neutral-800 rounded-2xl max-w-md w-full p-6 shadow-2xl relative">
             <div class="flex items-center justify-between mb-4">
                 <h3 class="text-lg font-bold">Enviar Arquivo do Bot</h3>
-                <button onclick="fecharModalUpload()" class="text-neutral-400 hover:text-white">&times;</button>
+                <button onclick="fecharModalUpload()" class="text-neutral-400 hover:text-white text-xl">&times;</button>
             </div>
-            <p class="text-neutral-400 text-sm mb-6">Envie o arquivo compactado (.zip) contendo o código do seu bot ou o script principal.</p>
+            <p class="text-neutral-400 text-sm mb-6">Envie o arquivo compactado (.zip) ou o script principal do seu bot.</p>
             
             <form onsubmit="irParaConfig(event)" class="space-y-4">
                 <div class="border-2 border-dashed border-neutral-700 hover:border-pink-600 rounded-xl p-6 text-center cursor-pointer transition-colors relative">
@@ -110,17 +115,72 @@
                 window.location.href = 'login.html';
                 return;
             }
+            carregarDashboard();
         }
 
-        function abrirModalUpload() {
-            document.getElementById('upload-modal').classList.remove('hidden');
+        function carregarDashboard() {
+            const bots = JSON.parse(localStorage.getItem('blaze_bots') || '[]');
+            const total = bots.length;
+            const online = bots.filter(b => b.status === 'online').length;
+            const offline = bots.filter(b => b.status === 'offline').length;
+            const erros = bots.filter(b => b.status === 'error').length;
+
+            document.getElementById('stat-total').innerText = total;
+            document.getElementById('stat-online').innerText = online;
+            document.getElementById('stat-offline').innerText = offline;
+            document.getElementById('stat-erros').innerText = erros;
+
+            const grid = document.getElementById('bots-grid');
+            const emptyState = document.getElementById('empty-state');
+
+            if (total === 0) {
+                emptyState.classList.remove('hidden');
+                grid.innerHTML = '';
+                return;
+            }
+
+            emptyState.classList.add('hidden');
+            grid.innerHTML = '';
+
+            bots.forEach(bot => {
+                let statusCor = 'bg-emerald-500';
+                let statusTexto = 'Online';
+                if (bot.status === 'offline') {
+                    statusCor = 'bg-amber-500';
+                    statusTexto = 'Offline';
+                } else if (bot.status === 'error') {
+                    statusCor = 'bg-rose-500';
+                    statusTexto = 'Erro Grave';
+                }
+
+                const card = document.createElement('div');
+                card.className = "bg-neutral-900/60 border border-neutral-800 p-5 rounded-2xl flex flex-col justify-between hover:border-pink-500/40 transition-all cursor-pointer";
+                card.onclick = () => { window.location.href = `bot-details.html?id=${bot.id}`; };
+
+                card.innerHTML = `
+                    <div>
+                        <div class="flex items-center justify-between mb-3">
+                            <span class="text-xs font-bold uppercase tracking-wider bg-neutral-800 px-2.5 py-1 rounded-lg text-neutral-300">${bot.lang}</span>
+                            <div class="flex items-center space-x-1.5">
+                                <span class="w-2 h-2 rounded-full ${statusCor}"></span>
+                                <span class="text-xs text-neutral-400">${statusTexto}</span>
+                            </div>
+                        </div>
+                        <h3 class="font-bold text-lg mb-1">${bot.nome}</h3>
+                        <p class="text-neutral-400 text-xs line-clamp-2">${bot.desc || 'Sem descrição'}</p>
+                    </div>
+                    <div class="mt-4 pt-3 border-t border-neutral-800/80 flex items-center justify-between text-xs text-neutral-400">
+                        <span>RAM: ${bot.ram}</span>
+                        <span class="text-pink-500 font-semibold">Gerenciar ➔</span>
+                    </div>
+                `;
+                grid.appendChild(card);
+            });
         }
 
-        function fecharmodalUpload() {
-            document.getElementById('upload-modal').classList.add('hidden');
-        }
+        function abrirModalUpload() { document.getElementById('upload-modal').classList.remove('hidden'); }
+        function fecharModalUpload() { document.getElementById('upload-modal').classList.add('hidden'); }
 
-        // Mostra o nome do arquivo selecionado
         document.getElementById('bot-file').addEventListener('change', function(e) {
             if(e.target.files.length > 0) {
                 document.getElementById('file-label').innerText = e.target.files[0].name;
@@ -131,7 +191,6 @@
             event.preventDefault();
             const fileInput = document.getElementById('bot-file');
             if(fileInput.files.length > 0) {
-                // Guarda o nome do arquivo para usar na próxima página
                 localStorage.setItem('temp_bot_filename', fileInput.files[0].name);
                 window.location.href = 'config-bot.html';
             }
