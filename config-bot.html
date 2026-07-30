@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Configurar Bot - Blaze Applications</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-neutral-950 text-white font-sans antialiased min-h-screen flex flex-col items-center justify-center p-4">
+
+    <div class="w-full max-w-xl bg-neutral-900/80 border border-neutral-800 backdrop-blur-xl rounded-2xl p-8 shadow-2xl">
+        
+        <div class="mb-6">
+            <span class="text-xs font-semibold text-pink-500 uppercase tracking-wider">Passo 2 de 2</span>
+            <h1 class="text-2xl font-black mt-1">Configurações do Bot</h1>
+            <p class="text-neutral-400 text-sm mt-1">Defina os parâmetros finais antes de colocar seu bot online.</p>
+        </div>
+
+        <form onsubmit="finalizarHospedagem(event)" class="space-y-5">
+            
+            <!-- Nome do Bot -->
+            <div>
+                <label class="block text-xs font-semibold text-neutral-300 uppercase tracking-wider mb-2">Nome do Bot</label>
+                <input type="text" id="bot-name" required placeholder="Ex: MeuBotDiscord" class="w-full bg-neutral-950 border border-neutral-800 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-pink-600">
+            </div>
+
+            <!-- Descrição -->
+            <div>
+                <label class="block text-xs font-semibold text-neutral-300 uppercase tracking-wider mb-2">Descrição</label>
+                <textarea id="bot-desc" rows="2" placeholder="Para que serve este bot?" class="w-full bg-neutral-950 border border-neutral-800 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-pink-600"></textarea>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <!-- Linguagem -->
+                <div>
+                    <label class="block text-xs font-semibold text-neutral-300 uppercase tracking-wider mb-2">Linguagem</label>
+                    <select id="bot-lang" onchange="atualizarComandoAuto()" class="w-full bg-neutral-950 border border-neutral-800 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-pink-600">
+                        <option value="js">Node.js (JavaScript)</option>
+                        <option value="python">Python</option>
+                        <option value="ts">TypeScript</option>
+                    </select>
+                </div>
+
+                <!-- Memória RAM -->
+                <div>
+                    <label class="block text-xs font-semibold text-neutral-300 uppercase tracking-wider mb-2">Plano de Memória RAM</label>
+                    <select id="bot-ram" class="w-full bg-neutral-950 border border-neutral-800 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-pink-600">
+                        <option value="512mb">512 MB (Gratuito)</option>
+                        <option value="1gb">1 GB RAM</option>
+                        <option value="2gb">2 GB RAM</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Comando Inicial (Automático) -->
+            <div>
+                <label class="block text-xs font-semibold text-neutral-300 uppercase tracking-wider mb-2">Comando Inicial (Automático)</label>
+                <input type="text" id="bot-cmd" readonly class="w-full bg-neutral-900 border border-neutral-800 rounded-xl px-4 py-3 text-sm text-neutral-400 font-mono focus:outline-none">
+                <span class="text-xs text-neutral-500 mt-1 block">Gerado automaticamente com base na linguagem escolhida.</span>
+            </div>
+
+            <div class="flex items-center space-x-4 pt-4">
+                <a href="panel.html" class="w-1/3 bg-neutral-800 hover:bg-neutral-700 text-center text-neutral-300 font-semibold py-3.5 rounded-xl transition-all text-sm">
+                    Cancelar
+                </a>
+                <button type="submit" class="w-2/3 bg-pink-600 hover:bg-pink-500 text-white font-bold py-3.5 rounded-xl shadow-lg shadow-pink-600/30 transition-all text-sm">
+                    🚀 Hospedar Bot Agora
+                </button>
+            </div>
+        </form>
+
+    </div>
+
+    <script>
+        // Define o comando automático ao carregar a página
+        window.onload = function() {
+            const loggedUser = localStorage.getItem('blaze_logged_in');
+            if (loggedUser !== 'true') {
+                window.location.href = 'login.html';
+                return;
+            }
+            atualizarComandoAuto();
+        }
+
+        // Altera o comando automaticamente dependendo da linguagem
+        function atualizarComandoAuto() {
+            const lang = document.getElementById('bot-lang').value;
+            const cmdInput = document.getElementById('bot-cmd');
+            
+            if (lang === 'js') {
+                cmdInput.value = "node index.js";
+            } else if (lang === 'python') {
+                cmdInput.value = "python main.py";
+            } else if (lang === 'ts') {
+                cmdInput.value = "npm run start";
+            }
+        }
+
+        function finalizarHospedagem(event) {
+            event.preventDefault();
+            const nome = document.getElementById('bot-name').value;
+            const lang = document.getElementById('bot-lang').value;
+            const ram = document.getElementById('bot-ram').value;
+            const filename = localStorage.getItem('temp_bot_filename') || 'bot.zip';
+
+            // Salva um objeto simples do bot no navegador para simular a hospedagem
+            const novoBot = {
+                id: Date.now(),
+                nome: nome,
+                lang: lang,
+                ram: ram,
+                filename: filename,
+                status: 'online' // Já entra online para testar
+            };
+
+            let bots = JSON.parse(localStorage.getItem('blaze_bots') || '[]');
+            bots.push(novoBot);
+            localStorage.setItem('blaze_bots', JSON.stringify(bots));
+
+            alert('Bot hospedado com sucesso e iniciado com IA!');
+            window.location.href = 'panel.html';
+        }
+    </script>
+</body>
+</html>
