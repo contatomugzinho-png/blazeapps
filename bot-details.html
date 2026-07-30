@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gerenciar Bot - Blaze Applications</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-neutral-950 text-white font-sans antialiased min-h-screen flex flex-col">
+
+    <!-- NAVBAR -->
+    <header class="bg-neutral-900 border-b border-neutral-800 h-16 flex items-center justify-between px-6">
+        <div class="flex items-center space-x-3">
+            <a href="panel.html" class="text-neutral-400 hover:text-white text-sm">⬅ Voltar</a>
+            <span class="font-extrabold tracking-wide text-sm">BLAZE <span class="text-pink-600">CONSOLE</span></span>
+        </div>
+        <button onclick="deletarBot()" class="text-xs text-rose-500 hover:underline">Excluir Bot</button>
+    </header>
+
+    <!-- CONTEÚDO -->
+    <main class="flex-1 max-w-5xl w-full mx-auto p-6 md:p-10 flex flex-col">
+        
+        <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6">
+            <div>
+                <h1 class="text-2xl font-black" id="bot-title">Carregando...</h1>
+                <p class="text-neutral-400 text-xs" id="bot-info">Gerenciamento de instância</p>
+            </div>
+            
+            <!-- Botões de Controle (Ligar / Desligar) -->
+            <div class="flex items-center space-x-3">
+                <button onclick="mudarStatusBot('online')" id="btn-ligar" class="bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold px-4 py-2.5 rounded-xl transition-all shadow-lg shadow-emerald-600/20">
+                    🟢 Ligar Bot
+                </button>
+                <button onclick="mudarStatusBot('offline')" id="btn-desligar" class="bg-amber-600 hover:bg-amber-500 text-white text-xs font-bold px-4 py-2.5 rounded-xl transition-all shadow-lg shadow-amber-600/20">
+                    🔴 Desligar
+                </button>
+            </div>
+        </div>
+
+        <!-- TERMINAL DE LOGS AO VIVO -->
+        <div class="flex-1 bg-neutral-900 border border-neutral-800 rounded-2xl p-4 flex flex-col font-mono text-xs shadow-2xl min-h-[350px]">
+            <div class="flex items-center justify-between pb-3 border-b border-neutral-800 mb-3 text-neutral-400">
+                <div class="flex items-center space-x-2">
+                    <span class="w-3 h-3 rounded-full bg-rose-500 inline-block"></span>
+                    <span class="w-3 h-3 rounded-full bg-amber-500 inline-block"></span>
+                    <span class="w-3 h-3 rounded-full bg-emerald-500 inline-block"></span>
+                    <span class="ml-2 font-sans font-semibold text-neutral-300">Terminal / Logs ao Vivo</span>
+                </div>
+                <span id="terminal-status" class="text-emerald-400 font-semibold">● Rodando 24/7</span>
+            </div>
+
+            <!-- Caixa de Texto Preta do Console -->
+            <div id="console-logs" class="flex-1 bg-neutral-950 p-4 rounded-xl overflow-y-auto text-neutral-300 space-y-1.5 max-h-[400px]">
+                <p class="text-neutral-500">[Sistema] Conectando ao container Docker da Blaze...</p>
+            </div>
+        </div>
+
+    </main>
+
+    <script>
+        let currentBotId = null;
+        let currentBot = null;
+
+        window.onload = function() {
+            const urlParams = new URLSearchParams(window.location.search);
+            currentBotId = urlParams.get('id');
+
+            if (!currentBotId) {
+                window.location.href = 'panel.html';
+                return;
+            }
+
+            carregarDetalhesBot();
+        }
+
+        function carregarDetalhesBot() {
+            let bots = JSON.parse(localStorage.getItem('blaze_bots') || '[]');
+            currentBot = bots.find(b => b.id == currentBotId);
+
+            if (!currentBot) {
+                alert('Bot não encontrado!');
+                window.location.href = 'panel.html';
+                return;
+            }
+
+            document.getElementById('bot-title').innerText = currentBot.nome;
+            document.getElementById('bot-info').innerText = `Linguagem: ${currentBot.lang.toUpperCase()} | RAM: ${currentBot.ram} | Arquivo: ${currentBot.filename}`;
+
+            atualizarLogsInterface();
+        }
+
+        function atualizarLogsInterface() {
+            const logsBox = document.getElementById('console-logs');
+            const termStatus = document.getElementById('terminal-status');
+
+            if (currentBot.status === 'online') {
+                termStatus.innerText = "● Rodando 24/7";
+                termStatus.className = "text-emerald-400 font-semibold";
+                logsBox.innerHTML = `
+                    <p class="text-neutral-500">[System] Inicializando ambiente virtual...</p>
+                    <p class="text-emerald-400">[Blaze Runner] Comando executado com sucesso: <span class="text-neutral-300">${currentBot.lang === 'python' ? 'python main.py' : 'node index.js'}</span></p>
+                    <p class="text-neutral-300">[Bot] Autenticando token nos servidores de API...</p>
+                    <p class="text-emerald-500">[Bot] Conectado com sucesso! Logged in as ${currentBot.nome}#9921</p>
+                    <p class="text-neutral-400">[Watchdog] Uptime verificado: 100% estabilizado.</p>
+                `;
+            } else {
+                termStatus.innerText = "● Desligado";
+                termStatus.className = "text-amber-400 font-semibold";
+                logsBox.innerHTML = `
+                    <p class="text-amber-500">[System] Instância encerrada pelo usuário.</p>
+                    <p class="text-neutral-500">[System] Container pausado em repouso.</p>
+                `;
+            }
+        }
+
+        function mudarStatusBot(novoStatus) {
+            let bots = JSON.parse(localStorage.getItem('blaze_bots') || '[]');
+            bots = bots.map(b => {
+                if (b.id == currentBotId) {
+                    b.status = novoStatus;
+                    currentBot = b;
+                }
+                return b;
+            });
+
+            localStorage.setItem('blaze_bots', JSON.stringify(bots));
+            atualizarLogsInterface();
+            alert(`Status alterado para: ${novoStatus.toUpperCase()}`);
+        }
+
+        function deletarBot() {
+            if (confirm('Tem certeza que deseja excluir este bot?')) {
+                let bots = JSON.parse(localStorage.getItem('blaze_bots') || '[]');
+                bots = bots.filter(b => b.id != currentBotId);
+                localStorage.setItem('blaze_bots', JSON.stringify(bots));
+                window.location.href = 'panel.html';
+            }
+        }
+    </script>
+</body>
+</html>
