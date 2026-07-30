@@ -41,15 +41,15 @@
     </main>
 
     <script>
-        // Sistema básico de proteção de rota simulada
+        // Verifica se está logado. Se não estiver, manda para o login.
         window.onload = function() {
             const loggedUser = localStorage.getItem('blaze_logged_in');
-            if (!loggedUser) {
-                alert('Você precisa fazer login primeiro!');
+            if (loggedUser !== 'true') {
                 window.location.href = 'login.html';
             }
         }
 
+        // Função de sair da conta (limpa a sessão gravada)
         function logout() {
             localStorage.removeItem('blaze_logged_in');
             window.location.href = 'login.html';
